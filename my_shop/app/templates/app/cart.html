@@ -22,7 +22,7 @@
                     <p>{{ item.product.name }}</p>
                 </div>
                 <div style="flex:1">
-                    <p>${{ item.product.price }}</p>
+                    <p>{{ item.product.price }} VND</p>
                 </div>
                 <div style="flex:1">
                     <div class="quantity">
@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div style="flex:1">
-                    <p>${{ item.get_total }}</p>
+                    <p>{{ item.get_total }} VND</p>
                 </div>
             </div>
             {% endfor %}
@@ -49,7 +49,7 @@
                             <h5>Items: <strong>{{ order.get_cart_items }}</strong></h5>
                         </th>
                         <th>
-                            <h5>Total:<strong> ${{ order.get_cart_total }}</strong></h5>
+                            <h5>Total:<strong>{{ order.get_cart_total }} VND</strong></h5>
                         </th>
                         <th>
                             <a style="float:right; margin:5px;" class="btn btn-success" href="{% url 'checkout' %}">Checkout</a>

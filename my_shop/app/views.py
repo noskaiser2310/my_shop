@@ -20,7 +20,7 @@ def home(request):
 
 def cart(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        customer = request.user
         # Lấy đơn hàng gần đây nhất của khách hàng chưa hoàn thành
         order = Order.objects.filter(customer=customer, complete=False).first()
 
@@ -44,7 +44,7 @@ def cart(request):
 
 def checkout(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        customer = request.user
         order = Order.objects.filter(customer=customer, complete=False).first()
 
         if order:  # Nếu có đơn hàng chưa hoàn thành
@@ -96,7 +96,7 @@ def updateItem(request):
     data = json.loads(request.body)
     productId = data["productId"]
     action = data["action"]
-    customer = request.user.customer
+    customer = request.user
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer, complete=False)
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
@@ -159,3 +159,17 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect("login")
+
+
+def search(request):
+    query = request.GET.get("q")  # Lấy từ khóa tìm kiếm từ query string
+    results = []
+
+    if query:
+        results = Product.objects.filter(
+            name__icontains=query
+        )  # Tìm kiếm theo tên sản phẩm
+
+    context = {"query": query, "results": results}
+
+    return render(request, "app/search.html", context)

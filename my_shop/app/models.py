@@ -91,27 +91,6 @@ class CreateUserForm(UserCreationForm):
         return user
 
 
-class Customer(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE
-    )  # Không cho phép null hoặc blank
-    name = models.CharField(max_length=200, null=True)
-    email = models.CharField(max_length=200, null=True)
-
-    def __str__(self):
-        return self.name or str(self.user)
-
-    def save(self, *args, **kwargs):
-        if self.user is None:
-            # Cố gắng lấy người dùng mặc định
-            try:
-                self.user = User.objects.get(pk=1)  # Thay đổi ID nếu cần
-            except User.DoesNotExist:
-                # Xử lý trường hợp không có người dùng với pk=1
-                raise ValueError("User with pk=1 does not exist.")
-        super().save(*args, **kwargs)
-
-
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = models.FloatField()
@@ -131,9 +110,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(
-        Customer, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     date_order = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False, null=True, blank=False)
     transaction_id = models.CharField(max_length=200, null=True)
@@ -170,9 +147,7 @@ class OrderItem(models.Model):
 
 
 class ShippingAddress(models.Model):
-    customer = models.ForeignKey(
-        Customer, on_delete=models.SET_NULL, blank=True, null=True
-    )
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(null=True)
