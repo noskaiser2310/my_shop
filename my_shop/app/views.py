@@ -101,9 +101,7 @@ def checkout(request):
             order.save()
 
             # Chuyển hướng đến trang xác nhận hoặc trang khác
-            return redirect(
-                "confirmation"
-            )  # Thay 'confirmation' bằng tên url thực tế của bạn
+            return redirect("home")  # Thay 'confirmation' bằng tên url thực tế của bạn
 
         context = {
             "items": items,
@@ -211,3 +209,27 @@ def detail(request, productId):
     return render(
         request, "app/detail.html", {"product": product, "categories": categories}
     )
+
+
+def order_history(request):
+    if request.user.is_authenticated:
+        customer = request.user
+        orders = Order.objects.filter(customer=customer, complete=True).order_by(
+            "-date_order"
+        )
+
+        order_items = []
+        for order in orders:
+            items = order.orderitem_set.all()
+            order_items.append((order, items))
+
+    else:
+        orders = []
+        order_items = []
+
+    context = {
+        "orders": orders,
+        "order_items": order_items,
+    }
+
+    return render(request, "app/order_history.html", context)

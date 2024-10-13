@@ -1,0 +1,41 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block main-content %}
+<div class="container">
+    <h2>Your Order History</h2>
+
+    {% if orders %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date Ordered</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Items</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.date_order }}</td>
+                    <td>{{ order.get_cart_total }} VND</td>
+                    <td>{{ order.complete|yesno:"Completed,Pending" }}</td>
+                    <td>
+                        <ul>
+                            {% for item in order.orderitem_set.all %}
+                                <li>{{ item.product.name }} - {{ item.quantity }} x {{ item.product.price }} VND</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have no orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

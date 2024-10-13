@@ -4,7 +4,7 @@
 <div class="row" style="width: 100%;">
     <div class="col-lg-6">
         <div class="box-element" id="form-wrapper">
-            <form action="{% url 'home' %}" method="post" id="checkout-form" method="POST">
+            <form id="checkout-form" method="POST">
                 {% csrf_token %}
                 <div id="user-info">
                     <div class="form-field">
