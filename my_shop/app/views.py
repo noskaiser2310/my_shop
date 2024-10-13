@@ -44,12 +44,11 @@ def category(request):
 def cart(request):
     if request.user.is_authenticated:
         customer = request.user
-        # Lấy đơn hàng gần đây nhất của khách hàng chưa hoàn thành
         order = Order.objects.filter(customer=customer, complete=False).first()
 
-        if order:  # Nếu có đơn hàng chưa hoàn thành
-            items = order.orderitem_set.all()  # Lấy tất cả các item trong order
-        else:  # Nếu không có đơn hàng nào, tạo context rỗng
+        if order:
+            items = order.orderitem_set.all()
+        else:
             items = []
             order = {"get_cart_total": 0, "get_cart_items": 0}
 
@@ -58,9 +57,8 @@ def cart(request):
         order = {
             "get_cart_total": 0,
             "get_cart_items": 0,
-        }  # Giá trị mặc định khi người dùng chưa đăng nhập
+        }
 
-    # Tạo context là một dict chứa items và order
     categories = Category.objects.filter(is_sub=False)
     content = {"items": items, "order": order, "categories": categories}
     return render(request, "app/cart.html", content)
@@ -72,18 +70,16 @@ def checkout(request):
         customer = request.user
         order = Order.objects.filter(customer=customer, complete=False).first()
 
-        if order:  # Nếu có đơn hàng chưa hoàn thành
+        if order:
             items = order.orderitem_set.all()
             for item in items:
-                item.total_price = (
-                    item.product.price * item.quantity
-                )  # Tính tổng giá trị cho mỗi mặt hàng
+                item.total_price = item.product.price * item.quantity
         else:
             items = []
             order = {"get_cart_total": 0, "get_cart_items": 0}
 
         if request.method == "POST":
-            # Xử lý thông tin từ form
+
             shipping_address = ShippingAddress()
             shipping_address.customer = customer
             shipping_address.order = order
@@ -96,12 +92,10 @@ def checkout(request):
             shipping_address.country = request.POST["country"]
             shipping_address.save()
 
-            # Đánh dấu đơn hàng là hoàn thành
             order.complete = True
             order.save()
 
-            # Chuyển hướng đến trang xác nhận hoặc trang khác
-            return redirect("home")  # Thay 'confirmation' bằng tên url thực tế của bạn
+            return redirect("order_history")
 
         context = {
             "items": items,
@@ -142,7 +136,7 @@ def updateItem(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)  # Sử dụng UserCreationForm
+        form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Account created successfully!")
@@ -150,7 +144,7 @@ def register(request):
         else:
             messages.error(request, "Please correct the error below.")
     else:
-        form = UserCreationForm()
+        form = CreateUserForm()
 
     content = {"form": form}
     return render(request, "app/register.html", content)
@@ -175,7 +169,6 @@ def login_view(request):
 
 @login_required
 def home_view(request):
-    # Logic cho trang chính của bạn
     return render(request, "app/home.html")
 
 
@@ -186,13 +179,11 @@ def logout_view(request):
 
 
 def search(request):
-    query = request.GET.get("q")  # Lấy từ khóa tìm kiếm từ query string
+    query = request.GET.get("q")
     results = []
     categories = Category.objects.filter(is_sub=False)
     if query:
-        results = Product.objects.filter(
-            name__icontains=query
-        )  # Tìm kiếm theo tên sản phẩm
+        results = Product.objects.filter(name__icontains=query)
 
     context = {
         "query": query,
