@@ -37,7 +37,16 @@ class AccountAdmin(admin.ModelAdmin):
     ordering = ("date_joined",)
 
 
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "is_sub", "sub_category")
+    list_filter = ("is_sub", "sub_category")
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+    ordering = ("name",)
+
+
 # Đăng ký model với các tùy chỉnh
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Order, OrderAdmin)

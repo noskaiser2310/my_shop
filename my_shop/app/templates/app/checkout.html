@@ -4,7 +4,7 @@
 <div class="row" style="width: 100%;">
     <div class="col-lg-6">
         <div class="box-element" id="form-wrapper">
-            <form id="checkout-form" method="POST">
+            <form action="{% url 'home' %}" method="post" id="checkout-form" method="POST">
                 {% csrf_token %}
                 <div id="user-info">
                     <div class="form-field">
@@ -69,10 +69,10 @@
         <p>{{ item.quantity }}</p>
     </div>
     <div style="flex:1">
-        <p>${{ item.total_price }}</p> <!-- Sử dụng tổng giá trị đã tính toán -->
+        <p>{{ item.total_price }} VND</p> <!-- Sử dụng tổng giá trị đã tính toán -->
     </div>
 </div>
 {% endfor %}
 <h5>Items: {{ order.get_cart_items }}</h5>
-<h5>Total: ${{ order.get_cart_total }}</h5>
+<h5>Total: {{ order.get_cart_total }} VND</h5>
 {% endblock content_checkout %}

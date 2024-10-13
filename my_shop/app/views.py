@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import login, logout
@@ -7,15 +7,38 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 import json
 
 # Create your views here.
 
 
 def home(request):
-    products = Product.objects.all()
-    content = {"products": products}
+    product_list = Product.objects.all()
+    paginator = Paginator(product_list, 10)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
+    categories = Category.objects.filter(is_sub=False)
+
+    content = {
+        "products": products,
+        "categories": categories,  # Thêm danh mục vào context
+    }
     return render(request, "app/home.html", content)
+
+
+def category(request):
+    categories = Category.objects.filter(is_sub=False)
+    active_category = request.GET.get("category", "")
+
+    if active_category:
+        products = Product.objects.filter(category__slug=active_category)
+
+    return render(
+        request,
+        "app/category.html",
+        {"categories": categories, "products": products, "active": active_category},
+    )
 
 
 def cart(request):
@@ -38,11 +61,13 @@ def cart(request):
         }  # Giá trị mặc định khi người dùng chưa đăng nhập
 
     # Tạo context là một dict chứa items và order
-    content = {"items": items, "order": order}
+    categories = Category.objects.filter(is_sub=False)
+    content = {"items": items, "order": order, "categories": categories}
     return render(request, "app/cart.html", content)
 
 
 def checkout(request):
+    categories = Category.objects.filter(is_sub=False)
     if request.user.is_authenticated:
         customer = request.user
         order = Order.objects.filter(customer=customer, complete=False).first()
@@ -83,6 +108,7 @@ def checkout(request):
         context = {
             "items": items,
             "order": order,
+            "categories": categories,
         }
         return render(request, "app/checkout.html", context)
 
@@ -164,12 +190,24 @@ def logout_view(request):
 def search(request):
     query = request.GET.get("q")  # Lấy từ khóa tìm kiếm từ query string
     results = []
-
+    categories = Category.objects.filter(is_sub=False)
     if query:
         results = Product.objects.filter(
             name__icontains=query
         )  # Tìm kiếm theo tên sản phẩm
 
-    context = {"query": query, "results": results}
+    context = {
+        "query": query,
+        "results": results,
+        "categories": categories,
+    }
 
     return render(request, "app/search.html", context)
+
+
+def detail(request, productId):
+    product = Product.objects.get(id=productId)
+    categories = Category.objects.filter(is_sub=False)
+    return render(
+        request, "app/detail.html", {"product": product, "categories": categories}
+    )

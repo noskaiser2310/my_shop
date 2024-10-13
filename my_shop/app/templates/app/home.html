@@ -67,7 +67,7 @@
                     <button type="button" data-product="{{ product.id }}" data-action="add" class="btn btn-sm btn-outline-secondary update-cart">Add to cart</button>
                     <h5 class="mb-0"><strong>{{ product.price | floatformat:2 }} VND</strong></h5>
                 </div>
-                <a href="#" class="btn btn-outline-success btn-sm mt-2">View</a>
+                <a href="{% url 'detail' product.id %}" class="btn btn-outline-success btn-sm mt-2">View</a>
             </div>           
         </div>
     </div>
