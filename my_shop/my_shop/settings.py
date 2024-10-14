@@ -92,8 +92,16 @@ WSGI_APPLICATION = "my_shop.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "mssql",
+        "NAME": "my_shop",
+        "HOST": "NOS-KAISER",
+        "PORT": "",
+        "OPTIONS": {
+            "driver": "ODBC Driver 17 for SQL Server",  # Use ODBC Driver 17
+            "trusted_connection": "yes",
+            "encrypt": False,
+            "TrustServerCertificate": "yes",
+        },
     }
 }
 

@@ -1,0 +1,126 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content_checkout %}
+<div class="container mt-5">
+    <div class="row gutters">
+        <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3 text-primary">User Profile</h6>
+                    <form method="post" id="userForm">
+                        {% csrf_token %}
+                        <div class="row gutters">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    {{ user_account_form.first_name }}
+                                    {% if user_account_form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.first_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    {{ user_account_form.last_name }}
+                                    {% if user_account_form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.last_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    {{ user_account_form.phone_number }}
+                                    {% if user_account_form.phone_number.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.phone_number.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    {{ user_account_form.email }}
+                                    {% if user_account_form.email.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.email.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- <h6 class="mb-3 text-primary">Shipping Address</h6>
+                        <div class="row gutters">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="shippingAddress">Shipping Address</label>
+                                    {{ user_account_form.shipping_address }}
+                                    {% if user_account_form.shipping_address.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.shipping_address.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="shippingPhoneNumber">Shipping Phone Number</label>
+                                    {{ user_account_form.shipping_phone_number }}
+                                    {% if user_account_form.shipping_phone_number.errors %}
+                                        <div class="text-danger">
+                                            {{ user_account_form.shipping_phone_number.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-right mt-4">
+                                <button type="button" class="btn btn-primary" id="editButton">Edit</button>
+                                <button type="submit" class="btn btn-success" style="display: none;" id="updateButton">Update</button>
+                                <button type="button" class="btn btn-secondary" style="display: none;" id="cancelButton">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    
+
+<script>
+    // Khi nhấn nút Edit
+    document.getElementById('editButton').addEventListener('click', function() {
+        // Lấy tất cả các trường nhập
+        let inputs = document.querySelectorAll('#userForm input');
+        inputs.forEach(input => {
+            input.removeAttribute('readonly'); // Xóa thuộc tính readonly để cho phép chỉnh sửa
+        });
+
+        // Hiện nút Update và Cancel, ẩn nút Edit
+        this.style.display = 'none'; // Ẩn nút Edit
+        document.getElementById('updateButton').style.display = 'inline-block'; // Hiện nút Update
+        document.getElementById('cancelButton').style.display = 'inline-block'; // Hiện nút Cancel
+    });
+
+    // Khi nhấn nút Cancel
+    document.getElementById('cancelButton').addEventListener('click', function() {
+        // Tải lại trang để hủy cập nhật
+        window.location.reload(); // Hủy mọi thay đổi và tải lại trang
+    });
+</script>
+
+
+{% endblock content_checkout %}

@@ -18,7 +18,8 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 
 class ShippingAddressAdmin(admin.ModelAdmin):
-    list_display = ["customer", "order", "address", "city", "state", "zipcode"]
+    list_display = ["customer", "first_name", "last_name", "address", "phone_number"]
+    list_filter = ["customer"]
 
 
 class AccountAdmin(admin.ModelAdmin):
@@ -27,13 +28,26 @@ class AccountAdmin(admin.ModelAdmin):
         "username",
         "first_name",
         "last_name",
+        "phone_number",
+        "address",
         "is_active",
+        "is_staff",
+        "is_superadmin",
         "last_login",
         "date_joined",
     )
 
-    list_display_links = ("email", "username", "first_name", "last_name")
+    list_display_links = (
+        "email",
+        "username",
+        "first_name",
+        "last_name",
+        "phone_number",
+        "address",
+    )
     readonly_fields = ("last_login", "date_joined")
+    list_filter = ("is_active", "is_staff", "is_superadmin")
+    search_fields = ("email", "username", "first_name", "last_name")
     ordering = ("date_joined",)
 
 

@@ -86,12 +86,7 @@ def checkout(request):
             shipping_address.name = request.POST["name"]
             shipping_address.email = request.POST["email"]
             shipping_address.address = request.POST["address"]
-            shipping_address.city = request.POST["city"]
-            shipping_address.state = request.POST["state"]
-            shipping_address.zipcode = request.POST["zipcode"]
-            shipping_address.country = request.POST["country"]
             shipping_address.save()
-
             order.complete = True
             order.save()
 
@@ -105,9 +100,7 @@ def checkout(request):
         return render(request, "app/checkout.html", context)
 
     else:
-        return redirect(
-            "login"
-        )  # Chuyển hướng đến trang đăng nhập nếu người dùng chưa đăng nhập
+        return redirect("login")
 
 
 def updateItem(request):
@@ -224,3 +217,17 @@ def order_history(request):
     }
 
     return render(request, "app/order_history.html", context)
+
+
+def account(request):
+    if request.method == "POST":
+        form = UserAccountForm(
+            request.POST, instance=request.user
+        )  # Đảm bảo bạn sử dụng đúng instance
+        if form.is_valid():
+            form.save()
+            return redirect("account")  # Redirect sau khi lưu thành công
+    else:
+        form = UserAccountForm(instance=request.user)  # Để hiển thị thông tin hiện tại
+
+    return render(request, "app/account.html", {"user_account_form": form})

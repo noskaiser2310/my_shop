@@ -3,62 +3,66 @@ from django.contrib.auth.models import User, BaseUserManager, AbstractBaseUser
 from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django import forms
 
 
-# Mô hình quản lý tài khoản
 class MyAccountManager(BaseUserManager):
-    def create_user(self, first_name, last_name, username, email, password=None):
+    def create_user(self, email, username, first_name, last_name, password=None):
         if not email:
-            raise ValueError("Email address is required")
+            raise ValueError("Users must have an email address")
         if not username:
-            raise ValueError("User name is required")
+            raise ValueError("Users must have a username")
         user = self.model(
-            email=self.normalize_email(email=email),
+            email=self.normalize_email(email),
             username=username,
             first_name=first_name,
             last_name=last_name,
         )
-        user.set_password(password)
+        user.set_password(password)  # Use set_password() to hash the password
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, first_name, last_name, email, username, password):
+    def create_superuser(self, email, username, first_name, last_name, password):
         user = self.create_user(
-            email=self.normalize_email(email=email),
+            email,
             username=username,
-            password=password,
             first_name=first_name,
             last_name=last_name,
+            password=password,
         )
         user.is_admin = True
-        user.is_active = True
         user.is_staff = True
+        user.is_active = True
         user.is_superadmin = True
         user.save(using=self._db)
         return user
 
 
-# Mô hình tài khoản
 class Account(AbstractBaseUser):
+    # customer = models.ForeignKey(
+    #     get_user_model(), on_delete=models.SET_NULL, blank=True, null=True
+    # )
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100, unique=True)
-    phone_number = models.CharField(max_length=50)
+    address = models.CharField(max_length=200, null=True)
+    phone_number = models.CharField(max_length=50, null=True)
+    # shipping_address = models.CharField(max_length=200, null=True)
+    # shipping_phone_number = models.CharField(max_length=50, null=True)
 
-    # Các trường bắt buộc
-    date_joined = models.DateTimeField(
-        default=timezone.now
-    )  # Correctly use timezone.now
-    last_login = models.DateTimeField(
-        default=timezone.now, blank=True, null=True
-    )  # Default value set here
+    date_joined = models.DateTimeField(default=timezone.now)
+    last_login = models.DateTimeField(default=timezone.now, blank=True, null=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_superadmin = models.BooleanField(default=False)
-    USERNAME_FIELD = "email"  # Username field is email
+
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
+
     objects = MyAccountManager()
 
     def __str__(self):
@@ -69,6 +73,47 @@ class Account(AbstractBaseUser):
 
     def has_module_perms(self, add_label):
         return True
+
+    def full_name(self):
+        """Trả về tên đầy đủ của người dùng."""
+        return f"{self.first_name} {self.last_name}"
+
+
+class UserAccountForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = [
+            "first_name",
+            "last_name",
+            "phone_number",
+            "address",
+            "email",
+            # "shipping_address",
+            # "shipping_phone_number",
+        ]
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "First Name"}
+            ),
+            "last_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Last Name"}
+            ),
+            "phone_number": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Phone Number"}
+            ),
+            "address": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "address"}
+            ),
+            "email": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "email"}
+            ),
+            # "shipping_address": forms.TextInput(
+            #     attrs={"class": "form-control", "placeholder": "Shipping Address"}
+            # ),
+            # "shipping_phone_number": forms.TextInput(
+            #     attrs={"class": "form-control", "placeholder": "Shipping Phone Number"}
+            # ),
+        }
 
 
 class CreateUserForm(UserCreationForm):
@@ -163,17 +208,17 @@ class OrderItem(models.Model):
         return total
 
 
-class ShippingAddress(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
-    name = models.CharField(max_length=200, null=True)
-    email = models.EmailField(null=True)
-    address = models.CharField(max_length=200, null=True)
-    city = models.CharField(max_length=200, null=True)
-    state = models.CharField(max_length=200, null=True)
-    zipcode = models.CharField(max_length=10, null=True)
-    country = models.CharField(max_length=100, null=True)
-    date_added = models.DateTimeField(auto_now_add=True)
+class ShippingAddress(Account):
+    customer = models.ForeignKey(
+        get_user_model(), on_delete=models.SET_NULL, blank=True, null=True
+    )
+    # first_name = models.CharField(max_length=50)
+    # last_name = models.CharField(max_length=50)
+    # address = models.CharField(max_length=200, null=True)
+    # phone_number = models.CharField(max_length=50, null=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.address
+        return (
+            f"{self.first_name} {self.last_name}, {self.address} ,{self.phone_number}"
+        )

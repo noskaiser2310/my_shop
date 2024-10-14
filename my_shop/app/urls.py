@@ -8,6 +8,7 @@ from django.conf import settings
 urlpatterns = [
     path("", views.home, name="home"),
     path("cart/", views.cart, name="cart"),
+    path("account/", views.account, name="account"),
     path("detail/<int:productId>/", views.detail, name="detail"),
     path("checkout/", views.checkout, name="checkout"),
     path("update_item/", views.updateItem, name="update_item"),
